@@ -103,6 +103,20 @@ func (app *App) slowHelloDB(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func (app *App) slowHelloNewContextDB(w http.ResponseWriter, r *http.Request) {
+	log.Println("slow hello new context db access")
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	var val interface{}
+	err := app.DB.QueryRowContext(ctx, "select pg_sleep(5)").Scan(&val)
+	if err != nil {
+		log.Println("query failed by newly created context")
+		return
+	}
+	fmt.Fprintf(w, "slow hello new context db\n")
+	return
+}
+
 var (
 	uri = flag.String("dburi", "", "database uri")
 )
@@ -123,6 +137,7 @@ func main() {
 	mux.Handle("/timeout-hello-custom", timeout(http.HandlerFunc(app.slowHello)))
 	mux.Handle("/timeout-hello-stdlib", http.TimeoutHandler(http.HandlerFunc(app.slowHello), 2*time.Second, "timeout!!\n"))
 	mux.Handle("/timeout-hello-db", http.TimeoutHandler(http.HandlerFunc(app.slowHelloDB), 2*time.Second, "timeout!!\n"))
+	mux.Handle("/timeout-hello-new-context-db", http.HandlerFunc(app.slowHelloNewContextDB))
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatal(err)
