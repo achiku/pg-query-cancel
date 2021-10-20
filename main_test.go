@@ -46,7 +46,7 @@ func TestQueryContextCancel(t *testing.T) {
 
 	var v interface{}
 	if err := db.QueryRowContext(ctx, "select pg_sleep(10)").Scan(&v); err != nil {
-		t.Fatal(err)
+		t.Fatalf("pg_sleep query failed: %s", err)
 	}
 	t.Logf("%s", v)
 }
