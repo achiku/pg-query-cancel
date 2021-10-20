@@ -1,0 +1,13 @@
+root_path = "."
+
+watch_target_dirs = ["."]
+watch_exclude_dirs = [".git"]
+watch_file_ext = [".go"]
+
+build_target_dir = "tmp"
+build_target_name = "server"
+build_command = "go"
+build_options = ["build", "-v"]
+
+start_options = ["-dburi", "postgres://chiku:@localhost:5432/postgres"]
+restart_process = true
